@@ -1,6 +1,6 @@
 import express from 'express'
-import fs from 'fs-extra'
-import path from 'path'
+// import fs from 'fs-extra'
+// import path from 'path'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import services from './services/getMonsters.js'

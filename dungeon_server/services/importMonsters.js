@@ -1,10 +1,10 @@
 import db from "../util/db.js"
 
 const importMonster = {
-  async import (monster) {
+  async update (monster) {
     try {
-      const payload = await db('monsters')
-      .insert({
+      await db('monsters')
+      .update({
         index: monster.index,
         name: monster.name,
         size: monster.size,
@@ -37,9 +37,63 @@ const importMonster = {
         legendary_actions: JSON.stringify(monster.legendary_actions),
         url: monster.url
       })
+      .where({
+        index: monster.index
+      })
+
     } catch (err) {
       console.log(err)
     }
+  },
+  async import (monster) {
+    const dbData = await db('monsters')
+    .select('index', 'id')
+
+    const findDupes = dbData.filter(item => {
+      const data = Object.values(monster).includes(item.index)
+      return data
+    })
+
+    const payload = findDupes.map(item => {
+      console.log(item)
+      return {
+        index: item.index,
+        name: item.name,
+        size: item.size,
+        type: item.type,
+        subtype: item.subtype,
+        alignment: item.alignment,
+        armor_class: JSON.stringify(item.armor_class),
+        hit_points: item.hit_points,
+        hit_dice: item.hit_dice,
+        hit_points_roll: item.hit_points_roll,
+        speed: JSON.stringify(item.speed),
+        strength: item.strength,
+        dexterity: item.dexterity,
+        constitution: item.dexterity,
+        intelligence: item.intelligence,
+        wisdom: item.wisdom,
+        charisma: item.charisma,
+        proficiencies: JSON.stringify(item.proficiencies),
+        damage_vulnerabilities: JSON.stringify(item.damage_vulnerabilities),
+        damage_resistances: JSON.stringify(item.damage_resistances),
+        damage_immunities: JSON.stringify(item.damage_immunities),
+        condition_immunities: JSON.stringify(item.condition_immunities),
+        senses: JSON.stringify(item.senses),
+        languages: JSON.stringify(item.languages),
+        challenge_rating: item.challenge_rating,
+        proficiency_bonus: item.proficiency_bonus,
+        xp: item.xp,
+        special_abilities: JSON.stringify(item.special_abilities),
+        actions: JSON.stringify(item.actions),
+        legendary_actions: JSON.stringify(item.legendary_actions),
+        url: item.url
+      }
+    })
+    if (payload.length === 0) return
+    await db('monsters')
+    .insert(payload)
+    this.update(monster)
   }
 }
 
